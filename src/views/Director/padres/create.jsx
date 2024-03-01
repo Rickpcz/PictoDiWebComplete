@@ -35,8 +35,8 @@ const CreatePadre = ({ isVisible, onClose, instituto }) => {
   };
 
   useEffect(() => {
-    fetchAlumnos(); // Llamar a la función al montar el componente
-  }, []); // El segundo parámetro [] indica que se ejecutará solo una vez al montar el componente
+    fetchAlumnos(); 
+  }, []); 
 
   const create = async (e) => {
     e.preventDefault();
@@ -55,7 +55,7 @@ const CreatePadre = ({ isVisible, onClose, instituto }) => {
         password: password,
         permiso: "padre",
         instituto: instituto,
-        alumnos: selectedAlumnos, // Guardar los alumnos seleccionados en la base de datos
+        alumnos: selectedAlumnos,
       });
 
       Swal.fire({

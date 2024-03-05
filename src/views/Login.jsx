@@ -9,7 +9,10 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
+  fetchSignInMethodsForEmail
 } from "firebase/auth";
+import Swal from 'sweetalert2';
+
 
 const auth = getAuth(appFirebase);
 
@@ -46,19 +49,59 @@ const Login = () => {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-    const correo = e.target.email.value;
-
+  
+    const correoInput = document.querySelector('input[name="email"]');
+    
+    if (!correoInput || !correoInput.value.trim()) {
+      console.error("Dirección de correo electrónico no válida");
+      setError("Ingrese una dirección de correo electrónico válida");
+      return;
+    }
+  
+    const correo = correoInput.value.trim();
+  
     try {
+      
+      const signInMethods = await fetchSignInMethodsForEmail(auth, correo);
+  
+      if (signInMethods.length === 0) {
+        setError("El correo electrónico no está registrado. Regístrese primero.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Correo no registrado',
+          text: 'El correo electrónico no está registrado.',
+        });
+  
+        return;
+      }
+  
       await sendPasswordResetEmail(auth, correo);
       setError(null);
       setResetPasswordSent(true);
+  
+      Swal.fire({
+        icon: 'success',
+        title: 'Correo enviado',
+        text: 'Se ha enviado un correo para restablecer tu contraseña.',
+      });
+  
     } catch (error) {
-      console.log(error); // Agrega esta línea para imprimir el error en la consola
+      console.log(error);
       setError(
-        "Error al enviar el correo de restablecimiento de contraseña. Verifique el correo proporcionado."
+        "Error al enviar el correo de restablecimiento de contraseña. Verifique la dirección de correo proporcionada."
       );
+  
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Hubo un problema al enviar el correo. Por favor, inténtalo de nuevo.',
+      });
     }
   };
+  
+  
+  
+  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 bg-gray-100">
@@ -98,9 +141,9 @@ const Login = () => {
                     <input type="checkbox" name="remember" className="mr-1" />
                     Recuerdame
                   </label>
-                  <a href="#" className="text-xs">
-                    ¿Olvidaste tu contraseña?
-                  </a>
+                  <a href="#" onClick={handleForgotPassword} className="text-xs">
+                ¿Olvidaste tu contraseña?
+              </a>
                 </div>
                 <button
                   type="submit"

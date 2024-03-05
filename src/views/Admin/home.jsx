@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { getAuth, signOut } from 'firebase/auth';
 import { FaHome } from "react-icons/fa";
 import { FaChildren } from "react-icons/fa6";
@@ -16,22 +17,18 @@ import {
 } from "react-icons/ri";
 import { useState } from "react";
 import appFirebase from '../../Data/credentials';
-import ShowAlumnos from "./alumnos/show";
-import ShowPadres from "./padres/show";
-import ShowProfesores from "./profesores/show";
-import ShowPsicologos from "./psicologos/show";
-import Card from './Pictogramas/card';
-
+import ShowAlumnos from "../Director/alumnos/show";
+import ShowPadres from "../Director/padres/show";
+import ShowProfesores from "../Director/profesores/show";
+import ShowPsicologos from "../Director/psicologos/show";
 
 const auth = getAuth(appFirebase);
 
-function HomeDirector() {
+function HomeAdmin() {
   const [sideBarOpen, setSideBarOpen] = useState(false);
   const [cuentasOpen, setCuentasOpen] = useState(true);
   const [perfilOpen, setPerfilOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
-
-  
 
   const toggleSideBar = () => {
     setSideBarOpen(!sideBarOpen);
@@ -67,8 +64,6 @@ function HomeDirector() {
         return <ShowProfesores />;
       case "psicologos":
         return <ShowPsicologos />;
-      case "pictogramas":
-      return <Card/>;
       default:
         return null;
     }
@@ -215,11 +210,11 @@ function HomeDirector() {
           </nav>
         </header>
         <main>
-          {renderSelectedOption()}
+          Hola Admin
         </main>
       </div>
     </div>
   );
 }
 
-export default HomeDirector;
+export default HomeAdmin;

@@ -21,6 +21,7 @@ import ShowPadres from "./padres/show";
 import ShowProfesores from "./profesores/show";
 import ShowPsicologos from "./psicologos/show";
 import Card from './Pictogramas/card';
+import Home from './homeDirect';
 
 
 const auth = getAuth(appFirebase);
@@ -69,13 +70,17 @@ function HomeDirector() {
         return <ShowPsicologos />;
       case "pictogramas":
       return <Card/>;
+      case 'home':
+        return <Home/>;
+      case 'perfil':
+        return
       default:
         return null;
     }
   };
 
   return (
-    <div className="main-h-screen grid grid-col-1 grid-cols-6">
+    <div className="main-h-screen grid grid-col-1 grid-cols-6 relative">
       {/* sidebar */}
       <div
         className={`h-screen border-r fixed lg:static top-0 w-[80%] lg:w-full ${
@@ -202,6 +207,7 @@ function HomeDirector() {
                   <ul className="absolute top-full left-0 mt-2">
                     <li>
                       <button
+                      onClick={() => selectOption("perfil")}
                         className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
                       >
                         <RiUser3Line />

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { addDoc, collection } from 'firebase/firestore';
 import db from '../../../Data/db';
+import Swal from 'sweetalert2';
 
 const AddPictogramModal = ({ onClose, onPictogramAdded }) => {
   const [title, setTitle] = useState('');
@@ -31,8 +32,21 @@ const AddPictogramModal = ({ onClose, onPictogramAdded }) => {
       });
 
       onClose();
+
+      // Mostrar el mensaje de éxito con SweetAlert2
+      Swal.fire({
+        icon: 'success',
+        title: 'Pictograma Agregado',
+        text: 'El pictograma se agregó correctamente.',
+      });
     } catch (error) {
       console.error('Error adding pictograma:', error);
+      // Mostrar el mensaje de error con SweetAlert2
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Hubo un problema al agregar el pictograma. Por favor, intenta de nuevo.',
+      });
     }
   };
 

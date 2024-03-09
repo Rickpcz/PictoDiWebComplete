@@ -3,6 +3,7 @@ import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import db from '../../../Data/db';
 import { AiOutlineSearch } from 'react-icons/ai';
 import AddPictogramModal from './add';
+import Swal from 'sweetalert2'
 
 const Card = () => {
   const [pictogramas, setPictogramas] = useState([]);
@@ -29,13 +30,26 @@ const Card = () => {
   }, []);
   const handleDelete = async (id) => {
     try {
-      console.log('db:', db);
       const pictogramaRef = doc(db, 'pictograms', id);
-      console.log('pictogramaRef:', pictogramaRef);
       await deleteDoc(pictogramaRef);
-      // ... rest of the code
+
+      // Mostrar el mensaje de éxito con SweetAlert2
+      Swal.fire({
+        icon: 'success',
+        title: 'Pictograma Eliminado',
+        text: 'El pictograma se eliminó correctamente.',
+      });
+
+      setPictogramas((prevPictogramas) => prevPictogramas.filter((pictograma) => pictograma.id !== id));
     } catch (error) {
       console.error('Error deleting pictograma:', error);
+
+      // Mostrar el mensaje de error con SweetAlert2
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Hubo un problema al eliminar el pictograma. Por favor, intenta de nuevo.',
+      });
     }
   };
   
@@ -59,7 +73,7 @@ const Card = () => {
   const categories = Array.from(new Set(pictogramas.map((pictograma) => pictograma.category)));
 
   return (
-    <div>
+    <div className='mx-10' style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
       <div className="mb-4 flex items-center w-full">
         <div className="flex w-full items-center">
           <input

@@ -8,11 +8,10 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
   sendPasswordResetEmail,
-  fetchSignInMethodsForEmail
 } from "firebase/auth";
 import Swal from 'sweetalert2';
-
 
 const auth = getAuth(appFirebase);
 
@@ -20,6 +19,7 @@ const Login = () => {
   const [registrando, setRegistrando] = useState(false);
   const [error, setError] = useState(null);
   const [resetPasswordSent, setResetPasswordSent] = useState(false);
+  const [email, setEmail] = useState("");
 
   const autenticacion = async (e) => {
     e.preventDefault();
@@ -51,7 +51,6 @@ const Login = () => {
     e.preventDefault();
   
     const correoInput = document.querySelector('input[name="email"]');
-    
     if (!correoInput || !correoInput.value.trim()) {
       console.error("Dirección de correo electrónico no válida");
       setError("Ingrese una dirección de correo electrónico válida");
@@ -61,20 +60,6 @@ const Login = () => {
     const correo = correoInput.value.trim();
   
     try {
-      
-      const signInMethods = await fetchSignInMethodsForEmail(auth, correo);
-  
-      if (signInMethods.length === 0) {
-        setError("El correo electrónico no está registrado. Regístrese primero.");
-        Swal.fire({
-          icon: 'error',
-          title: 'Correo no registrado',
-          text: 'El correo electrónico no está registrado.',
-        });
-  
-        return;
-      }
-  
       await sendPasswordResetEmail(auth, correo);
       setError(null);
       setResetPasswordSent(true);
@@ -84,12 +69,17 @@ const Login = () => {
         title: 'Correo enviado',
         text: 'Se ha enviado un correo para restablecer tu contraseña.',
       });
-  
     } catch (error) {
       console.log(error);
-      setError(
-        "Error al enviar el correo de restablecimiento de contraseña. Verifique la dirección de correo proporcionada."
-      );
+  
+      // Verifica si el error es específico de correo no registrado
+      if (error.code === 'auth/user-not-found') {
+        setError("Correo electrónico no registrado");
+      } else {
+        setError(
+          "Error al enviar el correo de restablecimiento de contraseña. Verifique la dirección de correo proporcionada."
+        );
+      }
   
       Swal.fire({
         icon: 'error',
@@ -98,8 +88,6 @@ const Login = () => {
       });
     }
   };
-  
-  
   
   
 
@@ -125,6 +113,8 @@ const Login = () => {
                     name="email"
                     placeholder="Correo"
                     className="bg-gray-100 outline-none text-sm flex-l"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
                 <div className="bg-gray-100 w-64 p-2 flex items-center mb-3">
@@ -142,8 +132,8 @@ const Login = () => {
                     Recuerdame
                   </label>
                   <a href="#" onClick={handleForgotPassword} className="text-xs">
-                ¿Olvidaste tu contraseña?
-              </a>
+                    ¿Olvidaste tu contraseña?
+                  </a>
                 </div>
                 <button
                   type="submit"

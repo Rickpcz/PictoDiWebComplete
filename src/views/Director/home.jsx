@@ -14,7 +14,9 @@ import {
   RiNotification3Line,
   RiUser3Line
 } from "react-icons/ri";
-import { useState } from "react";
+
+
+import { useState, useEffect } from "react";
 import appFirebase from '../../Data/credentials';
 import ShowAlumnos from "./alumnos/show";
 import ShowPadres from "./padres/show";
@@ -22,6 +24,7 @@ import ShowProfesores from "./profesores/show";
 import ShowPsicologos from "./psicologos/show";
 import Card from './Pictogramas/card';
 import Home from './homeDirect';
+import Perfil from './perfil';
 
 
 const auth = getAuth(appFirebase);
@@ -73,11 +76,30 @@ function HomeDirector() {
       case 'home':
         return <Home/>;
       case 'perfil':
-        return
+        return <Perfil/>
       default:
         return null;
     }
   };
+
+  const buttonStyles = {
+    base: 'flex items-center gap-4 p-4 transition-colors text-gray-400 font-semibold ',
+    selected: 'bg-rose-500 text-white rounded-lg',
+    hover: 'hover:text-white hover:bg-rose-500 rounded-lg',
+  };
+  
+
+  useEffect(() => {
+    const verificarAutenticacion = () => {
+      const usuarioActual = auth.currentUser;
+      if (usuarioActual) {
+        // Si el usuario está autenticado, podemos establecer una opción predeterminada aquí
+        setSelectedOption('home');
+      }
+    };
+
+    verificarAutenticacion();
+  }, []);
 
   return (
     <div className="main-h-screen grid grid-col-1 grid-cols-6 relative">
@@ -95,16 +117,16 @@ function HomeDirector() {
         <div className="h-full flex flex-col justify-between">
           <nav>
             <ul>
-              <li>
+              <li className='py-1'>
                 <button
                   onClick={() => selectOption("home")}
-                  className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
+                  className={`${buttonStyles.base} ${selectedOption === 'home' ? buttonStyles.selected : buttonStyles.hover}`}
                 >
                   <FaHome />
                   Home
                 </button>
               </li>
-              <li>
+              <li className='py-1'>
                 <button
                   onClick={toggleCuentas}
                   className="flex items-center justify-between w-full p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
@@ -117,37 +139,37 @@ function HomeDirector() {
                 </button>
                 {cuentasOpen && (
                   <ul className="pl-6">
-                    <li>
+                    <li className='py-1'>
                       <button
                         onClick={() => selectOption("padres")}
-                        className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
+                        className={`${buttonStyles.base} ${selectedOption === 'padres' ? buttonStyles.selected : buttonStyles.hover}`}
                       >
                         <MdFamilyRestroom />
                         Padres
                       </button>
                     </li>
-                    <li>
+                    <li className='py-1'>
                       <button
                         onClick={() => selectOption("niños")}
-                        className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
+                        className={`${buttonStyles.base} ${selectedOption === 'niños' ? buttonStyles.selected : buttonStyles.hover}`}
                       >
                         <FaChildren />
                         Niños
                       </button>
                     </li>
-                    <li>
+                    <li className='py-1'>
                       <button
                         onClick={() => selectOption("profesores")}
-                        className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
+                        className={`${buttonStyles.base} ${selectedOption === 'profesores' ? buttonStyles.selected : buttonStyles.hover}`}
                       >
                         <FaChalkboardTeacher />
                         Profesores
                       </button>
                     </li>
-                    <li>
+                    <li className='py-1'>
                       <button
                         onClick={() => selectOption("psicologos")}
-                        className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
+                        className={`${buttonStyles.base} ${selectedOption === 'psicologos' ? buttonStyles.selected : buttonStyles.hover}`}
                       >
                         <FaUserDoctor />
                         Psicólogos
@@ -156,10 +178,10 @@ function HomeDirector() {
                   </ul>
                 )}
               </li>
-              <li>
+              <li className='py-1'>
                 <button
                   onClick={() => selectOption("pictogramas")}
-                  className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
+                  className={`${buttonStyles.base} ${selectedOption === 'pictogramas' ? buttonStyles.selected : buttonStyles.hover}`}
                 >
                   <MdOutlineImageSearch />
                   Pictogramas
@@ -221,7 +243,7 @@ function HomeDirector() {
           </nav>
         </header>
         <main>
-          {renderSelectedOption()}
+        {selectedOption ? renderSelectedOption() : null}
         </main>
       </div>
     </div>

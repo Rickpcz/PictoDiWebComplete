@@ -7,7 +7,7 @@ import db from "../../../Data/db";
 import Swal from 'sweetalert2';
 
 
-const EditAlumno = ({isVisible, onClose, id}) => {
+const EditAlumno = ({isVisible, onClose, id, updateData}) => {
     const [correo, setCorreo] = useState("");
     const [nombre, setNombre] = useState("");
     const [fecha_nacimiento, setFecha_Nacimiento] = useState("");
@@ -44,9 +44,10 @@ const EditAlumno = ({isVisible, onClose, id}) => {
                 icon: 'success',
                 title: 'Alumno Actualizado',
                 text: 'La información del alumno se ha actualizado correctamente.',
+            }).then(() => {
+              onClose();
+              updateData();
             });
-    
-            onClose();  // Cerrar el modal después de una actualización exitosa
         } catch (error) {
             console.error("Error al actualizar el alumno:", error.message);
     

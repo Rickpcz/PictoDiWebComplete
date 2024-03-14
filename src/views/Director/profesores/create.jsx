@@ -5,8 +5,9 @@ import { collection, doc, setDoc, getDocs } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 import db from "../../../Data/db";
 import Swal from 'sweetalert2';
+import axios from "axios";
 
-const CreateProfesor = ({ isVisible, onClose, instituto }) => {
+const CreateProfesor = ({ isVisible, onClose, instituto, updateData }) => {
   const [correo, setCorreo] = useState("");
   const [nombre, setNombre] = useState("");
   const [password, setPassword] = useState("");
@@ -18,34 +19,28 @@ const CreateProfesor = ({ isVisible, onClose, instituto }) => {
 
   const ProfesorCollections = collection(db, "profesores");
   const auth = getAuth();
-
+  const apiURL = 'http://localhost:3000'
   
   useEffect(() => {
     const fetchAsignaturas = async () => {
       try {
-        // Obtén la referencia a la colección 'profesores'
         const profesoresQuery = collection(db, "profesores");
         const profesoresSnapshot = await getDocs(profesoresQuery);
 
-        // Inicializa una lista para almacenar todas las asignaturas
         const listaAsignaturas = [];
 
-        // Itera sobre cada documento de 'profesores'
         profesoresSnapshot.forEach((profesorDoc) => {
-          // Verifica si el documento existe
           if (profesorDoc.exists()) {
-            // Accede al campo que es un array, por ejemplo, 'asignaturas'
+           
             const asignaturasArray = profesorDoc.data().asignaturas;
 
-            // Agrega las asignaturas a la lista general
+            
             listaAsignaturas.push(...asignaturasArray);
           }
         });
 
-        // Elimina duplicados de la lista de asignaturas (si es necesario)
         const asignaturasUnicas = [...new Set(listaAsignaturas)];
 
-        // Haz algo con la lista final de asignaturas únicas
         console.log('Lista de asignaturas:', asignaturasUnicas);
         setAsignaturas(asignaturasUnicas);
       } catch (error) {
@@ -64,19 +59,18 @@ const CreateProfesor = ({ isVisible, onClose, instituto }) => {
         return;
       }
 
-      const userCredential = await createUserWithEmailAndPassword(auth, correo, password);
-
-      await setDoc(doc(ProfesorCollections, userCredential.user.uid), {
-        id: userCredential.user.uid,
-        correo: correo,
-        nombre: nombre,
-        password: password,
-        grado: grado,
-        grupo: grupo,
-        asignaturas: selectedAsignaturas,
-        permiso: "profesor",
-        instituto: instituto,
+      const response = await axios.post(`${apiURL}/api/profesor/create`, {
+        correo,
+        nombre,
+        password,
+        grado,
+        grupo,
+        asignaturas: selectedAsignaturas, 
+        instituto
       });
+
+      const newProfesor = response.data;
+      setError('');
 
       Swal.fire({
         icon: 'success',
@@ -84,6 +78,7 @@ const CreateProfesor = ({ isVisible, onClose, instituto }) => {
         text: '¡La cuenta ha sido creada exitosamente!',
       }).then(() => {
         onClose();
+        updateData();
       });
 
     } catch (error) {

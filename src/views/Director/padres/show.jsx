@@ -106,7 +106,9 @@ const ShowPadres = () => {
       }
     }
   };
-
+  const updateDataPadre = async () => {
+    await fetchData(currentUser?.uid);
+  };
   useEffect(() => {
     fetchData(currentUser?.uid);
   }, [currentUser]);
@@ -118,7 +120,7 @@ const ShowPadres = () => {
 
 
   return (
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4"  style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold my-4">Padres</h1>
         <li className="list-none">
@@ -134,6 +136,7 @@ const ShowPadres = () => {
             isVisible={showModal}
             onClose={() => setShowModal(false)}
             instituto={directorDoc.data().instituto}
+            updateData={updateDataPadre}
           />
         )}
       </div>
@@ -142,7 +145,6 @@ const ShowPadres = () => {
           <tr>
             <th className="py-2 px-4 border-b">Nombre</th>
             <th className="py-2 px-4 border-b">Instituto</th>
-            <th className="py-2 px-4 border-b">Correo</th>
             <th className="py-2 px-4 border-b">Hijos</th>
             <th className="py-2 px-4 border-b">Acciones</th>
           </tr>
@@ -152,9 +154,10 @@ const ShowPadres = () => {
             <tr key={parent.id}>
               <td className="py-2 px-4 border-b">{parent.nombre}</td>
               <td className="py-2 px-4 border-b">{parent.instituto}</td>
-              <td className="py-2 px-4 border-b">{parent.correo}</td>
-              <td className="py-2 px-4 border-b">{parent.hijos}</td>
-              <td className="py-2 px-4 border-b flex gap-2">
+              <td className="py-2 px-4 border-b">{parent.hijos.join(' , ')}</td>
+
+
+       <td className="py-2 px-4 border-b flex gap-2">
               <button
                   className="bg-blue-400 text-white py-1 px-2 rounded"
                   onClick={() => openEditModal(parent.id)}

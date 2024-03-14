@@ -107,7 +107,9 @@ const ShowProfesores = () => {
       }
     }
   };
-
+  const updateDataProfesor = async () => {
+    await fetchData(currentUser?.uid);
+  };
   useEffect(() => {
     fetchData(currentUser?.uid);
   }, [currentUser]);
@@ -118,7 +120,7 @@ const ShowProfesores = () => {
   };
 
   return (
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4"  style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold my-4">Profesores</h1>
         <li className="list-none">
@@ -134,6 +136,7 @@ const ShowProfesores = () => {
             isVisible={showModal}
             onClose={() => setShowModal(false)}
             instituto={directorDoc.data().instituto}
+            updateData={updateDataProfesor}
           />
         )}
       </div>
@@ -170,6 +173,7 @@ const ShowProfesores = () => {
                     isVisible={showEditModal}
                     onClose={() => setShowEditModal(false)}
                     id={selectedChildId}
+                    updateData={updateDataProfesor}
                   />
                 )}
 

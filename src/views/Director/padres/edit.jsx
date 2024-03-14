@@ -6,7 +6,7 @@ import { getDoc, updateDoc, doc, collection, getDocs } from 'firebase/firestore'
 import db from '../../../Data/db';
 import Swal from 'sweetalert2';
 
-const EditPadre = ({ isVisible, onClose, id }) => {
+const EditPadre = ({ isVisible, onClose, id, updateData }) => {
   const [correo, setCorreo] = useState("");
   const [nombre, setNombre] = useState("");
   const [alumnos, setAlumnos] = useState([]);
@@ -33,9 +33,11 @@ const EditPadre = ({ isVisible, onClose, id }) => {
         icon: 'success',
         title: 'Profesor Actualizado',
         text: 'La información del profesor se ha actualizado correctamente.',
+      }).then(() => {
+        onClose();
+        updateData();
       });
-
-      onClose();
+      
     } catch (error) {
       console.error('Error al actualizar el profesor:', error.message);
 

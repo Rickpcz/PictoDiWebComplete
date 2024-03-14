@@ -6,16 +6,19 @@ import { collection, doc, setDoc, getDocs, query, where } from "firebase/firesto
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 import db from "../../../Data/db";
 import Swal from 'sweetalert2';
+import axios from "axios";
 
-const CreatePadre = ({ isVisible, onClose, instituto }) => {
+const CreatePadre = ({ isVisible, onClose, instituto, updateData }) => {
   const [correo, setCorreo] = useState("");
   const [nombre, setNombre] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [alumnos, setAlumnos] = useState([]);
-  const [selectedAlumnos, setSelectedAlumnos] = useState([]); 
+  const [hijos, setHijos] = useState([]);
+  const [selectedHijos, setSelectedAlumnos] = useState([]); 
   const padreCollection = collection(db, "padres");
   const auth = getAuth();
+  const apiURL = 'http://localhost:3000'
+
 
   const fetchAlumnos = async () => {
     try {
@@ -28,7 +31,7 @@ const CreatePadre = ({ isVisible, onClose, instituto }) => {
         id: alumnoDoc.id,
         ...alumnoDoc.data(),
       }));
-      setAlumnos(alumnosData);
+      setHijos(alumnosData);
     } catch (error) {
       console.error("Error fetching alumnos:", error);
     }
@@ -41,22 +44,18 @@ const CreatePadre = ({ isVisible, onClose, instituto }) => {
   const create = async (e) => {
     e.preventDefault();
     try {
-      if (!correo || !nombre || !password || selectedAlumnos.length === 0) {
+      if (!correo || !nombre || !password || selectedHijos.length === 0) {
         setError("Todos los campos son obligatorios");
         return;
       }
 
-      const userCredential = await createUserWithEmailAndPassword(auth, correo, password);
-
-      await setDoc(doc(padreCollection, userCredential.user.uid), {
-        id: userCredential.user.uid,
-        correo: correo,
-        nombre: nombre,
-        password: password,
-        permiso: "padre",
-        instituto: instituto,
-        alumnos: selectedAlumnos,
-      });
+      const response = await axios.post(`${apiURL}/api/padre/create`,{
+        correo,
+        nombre,
+        password,
+        instituto,
+        hijos:selectedHijos
+      })
 
       Swal.fire({
         icon: 'success',
@@ -64,6 +63,7 @@ const CreatePadre = ({ isVisible, onClose, instituto }) => {
         text: '¡La cuenta ha sido creada exitosamente!',
       }).then(() => {
         onClose();
+        updateData();
       });
 
     } catch (error) {
@@ -154,11 +154,11 @@ const CreatePadre = ({ isVisible, onClose, instituto }) => {
                 <h3 className="text-lg font-bold mb-2">Selecciona Alumno(s):</h3>
                 <select
                   multiple={true} // Permitir selección múltiple
-                  value={selectedAlumnos} // Valor seleccionado
+                  value={selectedHijos} // Valor seleccionado
                   onChange={(e) => setSelectedAlumnos(Array.from(e.target.selectedOptions, option => option.value))}
                   className="mt-1 p-2 w-full border rounded-md"
                 >
-                  {alumnos.map((alumno) => (
+                  {hijos.map((alumno) => (
                     <option key={alumno.id} value={alumno.id}>{alumno.nombre}</option>
                   ))}
                 </select>

@@ -1,81 +1,56 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { useState, useEffect } from "react";
-import { collection, doc, setDoc } from "firebase/firestore";
-import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
-import db from "../../../Data/db";
-import Swal from 'sweetalert2';
-import axios from 'axios';
-
-
-const CreatePsicologo = ({ isVisible, onClose, instituto , updateData }) => {
+import axios from "axios";
+import { useState } from "react";
+import Swal from "sweetalert2";
+const CreateDirector = ({ isVisible, onClose, updateData }) => {
   const [correo, setCorreo] = useState("");
   const [nombre, setNombre] = useState("");
-  const [grado, setGrado] = useState("");
-  const [grupo, setGrupo] = useState("");
   const [password, setPassword] = useState("");
-  const [especialidad, setEspecialidad] = useState("");
+  const [instituto, setInsituto] = useState("");
   const [error, setError] = useState("");
-  const [psicologos, setPsicologos] = useState([]);
 
-  const psicologoCollections = collection(db, "psicologos");
-  const auth = getAuth();
-  const apiURL = 'http://localhost:3000'
+  const apiURL = "http://localhost:3000";
 
-
-  
-
-  const create = async (e) => {
+  const Create = async (e) => {
     e.preventDefault();
-  
+
     try {
-      if (!correo || !nombre || !password || !especialidad || !grado || !grupo) {
+      if (!correo || !nombre || !instituto || !password) {
         setError("Todos los campos son obligatorios");
         return;
       }
-  
-      const response = await axios.post(`${apiURL}/api/psicologo/create`, {
-        nombre,
+
+      const response = await axios.post(`${apiURL}/api/director/create`, {
         correo,
-        especialidad,
+        nombre,
         instituto,
-        grado,
-        grupo,
         password,
       });
-  
-      const newPsicologo = response.data;
-  
-      setError('');
-  
+
+      const newDirector = response.data;
+      setError("");
+
       Swal.fire({
-        icon: 'success',
-        title: 'Cuenta creada con éxito',
-        text: '¡La cuenta ha sido creada exitosamente!',
+        icon: "success",
+        title: "Cuenta creada con éxito",
+        text: "¡La cuenta ha sido creada exitosamente!",
       }).then(() => {
         onClose();
         updateData();
-        console.log("Lógica adicional después de obtener la lista de psicólogos");
       });
-      
-      
-      // Puedes realizar acciones adicionales si es necesario con newPsicologo
     } catch (error) {
       console.error("Error al crear usuario:", error.message);
       setError(
         "Hubo un problema al crear el usuario. Por favor, intenta de nuevo."
       );
-  
       Swal.fire({
-        icon: 'error',
-        title: 'Error al crear la cuenta',
-        text: 'Hubo un problema al crear la cuenta. Por favor, intenta de nuevo.',
+        icon: "error",
+        title: "Error al crear la cuenta",
+        text: "Hubo un problema al crear la cuenta. Por favor, intenta de nuevo.",
       });
     }
   };
-
-
-  if (!isVisible) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center">
@@ -88,9 +63,11 @@ const CreatePsicologo = ({ isVisible, onClose, instituto , updateData }) => {
           x
         </button>
         <div className="bg-white p-2 rounded m-30">
-          <h2 className="text-2xl font-bold mb-4 text-center">Crear Psicólogo</h2>
+          <h2 className="text-2xl font-bold mb-4 text-center">
+            Crear Director
+          </h2>
 
-          <form action="" className="grid grid-cols-2 m-10" onSubmit={create}>
+          <form action="" className="grid grid-cols-2 m-10" onSubmit={Create}>
             {/* rigt */}
             <div className="mx-5">
               <div className="mb-4">
@@ -126,44 +103,27 @@ const CreatePsicologo = ({ isVisible, onClose, instituto , updateData }) => {
                   className="mt-1 p-2 w-full border rounded-md"
                 />
               </div>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="especialidad"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Especialidad
-                </label>
-                <input
-                  type="text"
-                  id="especialidad"
-                  name="especialidad"
-                  value={especialidad}
-                  onChange={(e) => setEspecialidad(e.target.value)}
-                  className="mt-1 p-2 w-full border rounded-md"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="grado"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Grado
-                </label>
-                <input
-                  type="number"
-                  id="grado"
-                  name="grado"
-                  value={grado}
-                  onChange={(e) => setGrado(e.target.value)}
-                  className="mt-1 p-2 w-full border rounded-md"
-                />
-              </div>
             </div>
 
             {/* left */}
             <div className="">
+              <div className="mb-4">
+                <label
+                  htmlFor="nombre"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Instituto
+                </label>
+                <input
+                  type="text"
+                  id="instituo"
+                  name="instituto"
+                  value={instituto}
+                  onChange={(e) => setInsituto(e.target.value)}
+                  className="mt-1 p-2 w-full border rounded-md"
+                />
+              </div>
+
               <div className="mb-4">
                 <label
                   htmlFor="password"
@@ -177,23 +137,6 @@ const CreatePsicologo = ({ isVisible, onClose, instituto , updateData }) => {
                   name="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 p-2 w-full border rounded-md"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="grupo"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Grupo
-                </label>
-                <input
-                  type="text"
-                  id="grupo"
-                  name="grupo"
-                  value={grupo}
-                  onChange={(e) => setGrupo(e.target.value)}
                   className="mt-1 p-2 w-full border rounded-md"
                 />
               </div>
@@ -219,6 +162,6 @@ const CreatePsicologo = ({ isVisible, onClose, instituto , updateData }) => {
       </div>
     </div>
   );
-}
+};
 
-export default CreatePsicologo;
+export default CreateDirector;

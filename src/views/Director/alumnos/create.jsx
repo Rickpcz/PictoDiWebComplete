@@ -5,8 +5,9 @@ import { collection, doc, setDoc } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 import db from "../../../Data/db";
 import Swal from 'sweetalert2';
+import axios from "axios";
 
-const CreateAlumno = ({ isVisible, onClose, instituto}) => {
+const CreateAlumno = ({ isVisible, onClose, instituto, updateData}) => {
   const [correo, setCorreo] = useState("");
   const [nombre, setNombre] = useState("");
   const [fecha_nacimiento, setFecha_Nacimiento] = useState("");
@@ -19,6 +20,7 @@ const CreateAlumno = ({ isVisible, onClose, instituto}) => {
 
   const alumnoCollections = collection(db, "niños");
   const auth = getAuth();
+  const apiURL = 'http://localhost:3000'
 
   const create = async (e) => {
     e.preventDefault();
@@ -37,26 +39,20 @@ const CreateAlumno = ({ isVisible, onClose, instituto}) => {
         return;
       }
 
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
+      const response = await axios.post(`${apiURL}/api/alumno/create`,{
         correo,
-        password
-      );
+        nombre,
+        fecha_nacimiento,
+        password,
+        diagnostico,
+        gravedad,
+        grado,
+        grupo,
+        instituto
+      })
 
-
-      await setDoc(doc(alumnoCollections, userCredential.user.uid), {
-        id: userCredential.user.uid,
-        correo: correo,
-        nombre: nombre,
-        fecha_nacimiento: fecha_nacimiento,
-        password: password,
-        diagnostico: diagnostico,
-        gravedad: gravedad,
-        grado: grado,
-        grupo: grupo,
-        permiso: "nino",
-        instituto: instituto,
-      });
+      const newAlumno = response.data;
+      setError('');
 
       Swal.fire({
         icon: 'success',
@@ -64,6 +60,7 @@ const CreateAlumno = ({ isVisible, onClose, instituto}) => {
         text: '¡La cuenta ha sido creada exitosamente!',
       }).then(() => {
         onClose();
+        updateData();
       });
 
     } catch (error) {

@@ -78,7 +78,7 @@ const ShowPsicologos = () => {
       try {
         const itemDocRef = doc(db, collectionName, id);
         await deleteDoc(itemDocRef);
-        fetchData(currentUser?.uid); // Actualizar datos después de eliminar
+        fetchData(currentUser?.uid); 
         Swal.fire(
           "Eliminado",
           `${itemName} ha sido eliminado correctamente.`,
@@ -95,6 +95,10 @@ const ShowPsicologos = () => {
     }
   };
 
+  const updatePsychologistsData = async () => {
+    await fetchData(currentUser?.uid);
+  };
+
   useEffect(() => {
     fetchData(currentUser?.uid);
   }, [currentUser]);
@@ -105,7 +109,7 @@ const ShowPsicologos = () => {
   };
 
   return (
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4"  style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold my-4">Psicólogos</h1>
         <li className="list-none">
@@ -120,6 +124,7 @@ const ShowPsicologos = () => {
               isVisible={showModal}
               onClose={() => setShowModal(false)}
               instituto={directorDoc.data().instituto}
+              updateData={updatePsychologistsData}
             />
           )}
         </li>
@@ -157,6 +162,7 @@ const ShowPsicologos = () => {
                     isVisible={showEditModal}
                     onClose={() => setShowEditModal(false)}
                     id={selectedChildId}
+                    updateData={updatePsychologistsData}
                   />
                 )}
                 <button

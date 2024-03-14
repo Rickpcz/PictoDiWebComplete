@@ -25,7 +25,8 @@ import ShowPsicologos from "./psicologos/show";
 import Card from './Pictogramas/card';
 import Home from './homeDirect';
 import Perfil from './perfil';
-
+import { doc, getDoc } from 'firebase/firestore';
+import db from '../../Data/db';
 
 const auth = getAuth(appFirebase);
 
@@ -34,7 +35,7 @@ function HomeDirector() {
   const [cuentasOpen, setCuentasOpen] = useState(true);
   const [perfilOpen, setPerfilOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
-
+  const [userName, setUserName] = useState("");
   
 
   const toggleSideBar = () => {
@@ -90,15 +91,36 @@ function HomeDirector() {
   
 
   useEffect(() => {
+
+    const fetchUserData = async () => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          // Assuming you have a 'uid' property in your user data
+          const adminDocRef = doc(db, "directores", user.uid);
+          const adminDocSnapshot = await getDoc(adminDocRef);
+    
+          if (adminDocSnapshot.exists()) {
+            const adminData = adminDocSnapshot.data();
+            setUserName(adminData.nombre || "Usuario");
+          } else {
+            console.error("Admin data not found");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error.message);
+      }
+    };
     const verificarAutenticacion = () => {
       const usuarioActual = auth.currentUser;
       if (usuarioActual) {
-        // Si el usuario está autenticado, podemos establecer una opción predeterminada aquí
+        
         setSelectedOption('home');
       }
     };
 
     verificarAutenticacion();
+    fetchUserData();
   }, []);
 
   return (
@@ -221,7 +243,7 @@ function HomeDirector() {
               <li className="relative">
                 <button onClick={togglePerfil} className="focus:outline-none">
                   <div className="flex items-center gap-4">
-                    Director
+                    {userName}
                     {perfilOpen ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
                   </div>
                 </button>
@@ -229,7 +251,11 @@ function HomeDirector() {
                   <ul className="absolute top-full left-0 mt-2">
                     <li>
                       <button
-                      onClick={() => selectOption("perfil")}
+                      onClick={() => {
+                        selectOption("perfil")
+                        setPerfilOpen(false)
+                      }}
+                      
                         className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
                       >
                         <RiUser3Line />

@@ -1,41 +1,27 @@
 /* eslint-disable no-unused-vars */
-import { getAuth, signOut } from 'firebase/auth';
-import { FaHome } from "react-icons/fa";
-import { FaChildren } from "react-icons/fa6";
-import { FaChalkboardTeacher } from "react-icons/fa";
-import { MdFamilyRestroom } from "react-icons/md";
-import { FaUserDoctor } from "react-icons/fa6";
+import { getAuth, signOut } from "firebase/auth";
+import { RiAccountCircleFill, RiArrowDownSLine, RiArrowUpSLine, RiMenu2Line, RiNotification3Line, RiUser3Line } from "react-icons/ri";
 import { IoLogOutSharp } from "react-icons/io5";
-import { MdOutlineImageSearch } from "react-icons/md";
-import {
-  RiMenu2Line,
-  RiAccountCircleFill,
-  RiArrowDownSLine,
-  RiArrowUpSLine,
-  RiNotification3Line,
-  RiUser3Line
-} from "react-icons/ri";
-import { useState } from "react";
-import appFirebase from '../../Data/credentials';
-import ShowAlumnos from "../Director/alumnos/show";
-import ShowPadres from "../Director/padres/show";
-import ShowProfesores from "../Director/profesores/show";
-import ShowPsicologos from "../Director/psicologos/show";
+import { useState, useEffect } from "react";
+import appFirebase from "../../Data/credentials";
+import ShowDirectores from "./components/Show";
+import { doc, getDoc } from "firebase/firestore";
+
+import db from "../../Data/db";
+
 
 const auth = getAuth(appFirebase);
 
 function HomeAdmin() {
   const [sideBarOpen, setSideBarOpen] = useState(false);
-  const [cuentasOpen, setCuentasOpen] = useState(true);
   const [perfilOpen, setPerfilOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [userName, setUserName] = useState("");
+ 
+
 
   const toggleSideBar = () => {
     setSideBarOpen(!sideBarOpen);
-  };
-
-  const toggleCuentas = () => {
-    setCuentasOpen(!cuentasOpen);
   };
 
   const togglePerfil = () => {
@@ -46,28 +32,60 @@ function HomeAdmin() {
     try {
       await signOut(auth);
     } catch (error) {
-      console.error('Error al cerrar sesión:', error.message);
+      console.error("Error al cerrar sesión:", error.message);
     }
-  };
-
-  const selectOption = (option) => {
-    setSelectedOption(option);
   };
 
   const renderSelectedOption = () => {
     switch (selectedOption) {
-      case "niños":
-        return <ShowAlumnos />;
-      case "padres":
-        return <ShowPadres />;
-      case "profesores":
-        return <ShowProfesores />;
-      case "psicologos":
-        return <ShowPsicologos />;
+      case "directores":
+        return <ShowDirectores />;
+
       default:
         return null;
     }
   };
+
+
+  const buttonStyles = {
+    base: 'flex items-center gap-4 p-4 transition-colors text-gray-400 font-semibold ',
+    selected: 'bg-rose-500 text-white rounded-lg',
+    hover: 'hover:text-white hover:bg-rose-500 rounded-lg',
+  };
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          // Assuming you have a 'uid' property in your user data
+          const adminDocRef = doc(db, "admin", user.uid);
+          const adminDocSnapshot = await getDoc(adminDocRef);
+    
+          if (adminDocSnapshot.exists()) {
+            const adminData = adminDocSnapshot.data();
+            setUserName(adminData.nombre || "Usuario");
+          } else {
+            console.error("Admin data not found");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error.message);
+      }
+    };
+    
+    const verificarAutenticacion = () => {
+      const usuarioActual = auth.currentUser;
+      if (usuarioActual) {
+        
+        setSelectedOption('directores');
+      }
+    };
+
+    verificarAutenticacion();
+
+    fetchUserData();
+  }, []);
 
   return (
     <div className="main-h-screen grid grid-col-1 grid-cols-6">
@@ -87,72 +105,11 @@ function HomeAdmin() {
             <ul>
               <li>
                 <button
-                  onClick={() => selectOption("home")}
-                  className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
+                  onClick={() => setSelectedOption("directores")}
+                  className={`${buttonStyles.base} ${selectedOption === 'directores' ? buttonStyles.selected : buttonStyles.hover}`}
                 >
-                  <FaHome />
-                  Home
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={toggleCuentas}
-                  className="flex items-center justify-between w-full p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
-                >
-                  <div className="flex items-center gap-4">
-                    <RiAccountCircleFill />
-                    Cuentas
-                  </div>
-                  {cuentasOpen ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
-                </button>
-                {cuentasOpen && (
-                  <ul className="pl-6">
-                    <li>
-                      <button
-                        onClick={() => selectOption("padres")}
-                        className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
-                      >
-                        <MdFamilyRestroom />
-                        Padres
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={() => selectOption("niños")}
-                        className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
-                      >
-                        <FaChildren />
-                        Niños
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={() => selectOption("profesores")}
-                        className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
-                      >
-                        <FaChalkboardTeacher />
-                        Profesores
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={() => selectOption("psicologos")}
-                        className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
-                      >
-                        <FaUserDoctor />
-                        Psicólogos
-                      </button>
-                    </li>
-                  </ul>
-                )}
-              </li>
-              <li>
-                <button
-                  onClick={() => selectOption("pictogramas")}
-                  className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
-                >
-                  <MdOutlineImageSearch />
-                  Pictogramas
+                  <RiAccountCircleFill />
+                  Directores
                 </button>
               </li>
             </ul>
@@ -172,6 +129,7 @@ function HomeAdmin() {
       <button
         className="lg:hidden block absolute top-3 left-4 p-2 text-2xl z-20"
         onClick={toggleSideBar}
+        
       >
         <RiMenu2Line />
       </button>
@@ -189,29 +147,16 @@ function HomeAdmin() {
               <li className="relative">
                 <button onClick={togglePerfil} className="focus:outline-none">
                   <div className="flex items-center gap-4">
-                    Director
-                    {perfilOpen ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
+                    {userName} {/* Display user name */}
+                    
                   </div>
                 </button>
-                {perfilOpen && (
-                  <ul className="absolute top-full left-0 mt-2">
-                    <li>
-                      <button
-                        className="flex items-center gap-4 p-4 hover:text-white rounded-lg hover:bg-rose-500  transition-colors text-gray-400 font-semibold"
-                      >
-                        <RiUser3Line />
-                        Perfil
-                      </button>
-                    </li>
-                  </ul>
-                )}
+                
               </li>
             </ul>
           </nav>
         </header>
-        <main>
-          Hola Admin
-        </main>
+        <main>{selectedOption ? renderSelectedOption() : null}</main>
       </div>
     </div>
   );

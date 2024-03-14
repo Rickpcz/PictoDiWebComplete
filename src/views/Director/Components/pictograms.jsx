@@ -46,7 +46,7 @@ const PictogramsChart = () => {
   }));
 
   return (
-    <div className="w-[40%] py-2">
+    <div className="w-[50%] py-2">
       <h2 className='text-center text-gray-500 text-xl'>Pictogramas por Categoría</h2>
       <ResponsiveContainer width="100%" height={350}>
         <BarChart data={data}>

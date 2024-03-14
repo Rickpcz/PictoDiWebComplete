@@ -92,6 +92,10 @@ const ShowAlumnos = () => {
     }
   };
 
+  const updateDataAlumno = async () => {
+    await fetchData(currentUser?.uid);
+  };
+
   const openEditModal = (childId) => {
     setSelectedChildId(childId);
     setShowEditModal(true);
@@ -102,7 +106,7 @@ const ShowAlumnos = () => {
   }, [currentUser]);
 
   return (
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4"  style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 100px)' }}>
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold my-4">Niños</h1>
         <li className="list-none">
@@ -113,7 +117,7 @@ const ShowAlumnos = () => {
             Agregar
           </button>
         </li>
-        {showModal && <CreateAlumno isVisible={showModal} onClose = {()=>{setShowModal(false)}} instituto={directorDoc.data().instituto}/>}
+        {showModal && <CreateAlumno isVisible={showModal} onClose = {()=>{setShowModal(false)}} instituto={directorDoc.data().instituto} updateData={updateDataAlumno}/>}
       </div>
       <table className="min-w-full bg-white border border-gray-300">
         <thead>
@@ -150,6 +154,7 @@ const ShowAlumnos = () => {
                     isVisible={showEditModal}
                     onClose={() => setShowEditModal(false)}
                     id={selectedChildId}
+                    updateData={updateDataAlumno}
                   />
                 )}
                 
